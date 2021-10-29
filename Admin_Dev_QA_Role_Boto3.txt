@@ -1,0 +1,718 @@
+AdminRole S3
+
+import json
+import boto3
+import botocore
+
+def create_iam_policy_S3_fullaccess():
+    # Create IAM client
+    iam_S3_fullaccess = boto3.client('iam')
+
+    # Create a policy
+    S3_fullaccess = {
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:*",
+                "s3-object-lambda:*"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+    response_S3_fullaccess = iam_S3_fullaccess.create_policy(
+        PolicyName='S3_fullaccess',
+        PolicyDocument=json.dumps(S3_fullaccess)
+    )
+    print("S3_fullaccess policy: ",response_S3_fullaccess)
+    result = response_S3_fullaccess.get("Policy").get("Arn")
+    return result
+arn=create_iam_policy_S3_fullaccess()
+
+
+def create_iam_adminrole_s3():
+    # Create IAM client
+    iam_adminrole_s3 = boto3.client('iam')
+
+    # Create a role
+    adminrole_s3 = {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Effect": "Allow",
+                "Principal": {"Service": "s3.amazonaws.com"},
+                "Action": "sts:AssumeRole"
+            }
+        ]
+    }
+    response_adminrole_s3=iam_adminrole_s3.create_role(
+        RoleName='Hema_iam_adminrole_s3',
+        AssumeRolePolicyDocument=json.dumps(adminrole_s3)
+    )
+    print("AdminRole_S3: ",response_adminrole_s3)
+    iam_adminrole_s3.attach_role_policy(
+        RoleName='Hema_iam_adminrole_s3', PolicyArn=arn)
+
+create_iam_adminrole_s3()
+
+
+**************************************************************************************************
+
+Admin Role EC2
+
+import json
+import boto3
+import botocore
+
+def create_iam_policy_EC2_fullaccess():
+    # Create IAM client
+    iam_EC2_fullaccess = boto3.client('iam')
+
+    # Create a policy
+    EC2_fullaccess = {
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Action": "ec2:*",
+            "Effect": "Allow",
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": "elasticloadbalancing:*",
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": "cloudwatch:*",
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": "autoscaling:*",
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": "iam:CreateServiceLinkedRole",
+            "Resource": "*",
+            "Condition": {
+                "StringEquals": {
+                    "iam:AWSServiceName": [
+                        "autoscaling.amazonaws.com",
+                        "ec2scheduled.amazonaws.com",
+                        "elasticloadbalancing.amazonaws.com",
+                        "spot.amazonaws.com",
+                        "spotfleet.amazonaws.com",
+                        "transitgateway.amazonaws.com"
+                    ]
+                }
+            }
+        }
+    ]
+}
+
+    response_iam_EC2_fullaccess = iam_EC2_fullaccess.create_policy(
+        PolicyName='EC2_fullaccess',
+        PolicyDocument=json.dumps(EC2_fullaccess)
+    )
+    print("EC2_fullaccess Policy: ",response_iam_EC2_fullaccess)
+    result = response_iam_EC2_fullaccess.get("Policy").get("Arn")
+    return result
+arn=create_iam_policy_EC2_fullaccess()
+
+def create_iam_adminrole_EC2():
+    # Create IAM client
+    iam_adminrole_EC2 = boto3.client('iam')
+
+    # Create a role
+    adminrole_EC2 = {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Effect": "Allow",
+                "Principal": {"Service": "ec2.amazonaws.com"},
+                "Action": "sts:AssumeRole"
+            }
+        ]
+    }
+    response_iam_adminrole_EC2 = iam_adminrole_EC2.create_role(
+        RoleName='Hema_iam_adminrole_EC2',
+        AssumeRolePolicyDocument=json.dumps(adminrole_EC2)
+    )
+    print("Adminrole_EC2: ",response_iam_adminrole_EC2)
+    response_adminrole_EC2 = iam_adminrole_EC2.attach_role_policy(
+        RoleName='Hema_iam_adminrole_EC2', PolicyArn=arn)
+
+
+create_iam_adminrole_EC2()
+********************************************************************************************************
+
+Admin Role RDS
+
+import json
+import boto3
+import botocore
+
+def create_iam_policy_RDS_fullaccess():
+    # Create IAM client
+    iam_RDS_fullaccess = boto3.client('iam')
+
+    # Create a policy
+    RDS_fullaccess = {
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Action": [
+                "rds:*",
+                "application-autoscaling:DeleteScalingPolicy",
+                "application-autoscaling:DeregisterScalableTarget",
+                "application-autoscaling:DescribeScalableTargets",
+                "application-autoscaling:DescribeScalingActivities",
+                "application-autoscaling:DescribeScalingPolicies",
+                "application-autoscaling:PutScalingPolicy",
+                "application-autoscaling:RegisterScalableTarget",
+                "cloudwatch:DescribeAlarms",
+                "cloudwatch:GetMetricStatistics",
+                "cloudwatch:PutMetricAlarm",
+                "cloudwatch:DeleteAlarms",
+                "ec2:DescribeAccountAttributes",
+                "ec2:DescribeAvailabilityZones",
+                "ec2:DescribeCoipPools",
+                "ec2:DescribeInternetGateways",
+                "ec2:DescribeLocalGatewayRouteTables",
+                "ec2:DescribeLocalGatewayRouteTableVpcAssociations",
+                "ec2:DescribeLocalGateways",
+                "ec2:DescribeSecurityGroups",
+                "ec2:DescribeSubnets",
+                "ec2:DescribeVpcAttribute",
+                "ec2:DescribeVpcs",
+                "ec2:GetCoipPoolUsage",
+                "sns:ListSubscriptions",
+                "sns:ListTopics",
+                "sns:Publish",
+                "logs:DescribeLogStreams",
+                "logs:GetLogEvents",
+                "outposts:GetOutpostInstanceTypes"
+            ],
+            "Effect": "Allow",
+            "Resource": "*"
+        },
+        {
+            "Action": "pi:*",
+            "Effect": "Allow",
+            "Resource": "arn:aws:pi:*:*:metrics/rds/*"
+        },
+        {
+            "Action": "iam:CreateServiceLinkedRole",
+            "Effect": "Allow",
+            "Resource": "*",
+            "Condition": {
+                "StringLike": {
+                    "iam:AWSServiceName": [
+                        "rds.amazonaws.com",
+                        "rds.application-autoscaling.amazonaws.com"
+                    ]
+                }
+            }
+        }
+    ]
+}
+
+
+    response_RDS_fullaccess = iam_RDS_fullaccess.create_policy(
+        PolicyName='RDS_fullaccess',
+        PolicyDocument=json.dumps(RDS_fullaccess)
+    )
+    print("RDS FullAccess Policy: ",response_RDS_fullaccess)
+    result = response_RDS_fullaccess.get("Policy").get("Arn")
+    return result
+arn=create_iam_policy_RDS_fullaccess()
+
+def create_iam_adminrole_RDS():
+
+    # Create IAM client
+    iam_adminrole_RDS = boto3.client('iam')
+
+    # Create a role
+    adminrole_RDS = {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Effect": "Allow",
+                "Principal": {"Service": "rds.amazonaws.com"},
+                "Action": "sts:AssumeRole"
+            }
+        ]
+    }
+    response_adminrole_RDS = iam_adminrole_RDS.create_role(
+        RoleName='Hema_iam_adminrole_RDS',
+        AssumeRolePolicyDocument=json.dumps(adminrole_RDS)
+    )
+
+    iam_adminrole_RDS.attach_role_policy(
+        RoleName='Hema_iam_adminrole_RDS', PolicyArn=arn)
+
+    print("AdminRole RDS: ",response_adminrole_RDS)
+
+create_iam_adminrole_RDS()
+
+
+********************************************************************************************************
+
+DevRole S3
+
+import json
+import boto3
+import botocore
+
+def create_iam_policy_S3_ReadWriteaccess():
+    # Create IAM client
+    iam_S3_ReadWriteaccess = boto3.client('iam')
+
+    # Create a policy
+    S3_ReadWriteaccess = {
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:ListBucket"
+            ],
+            "Resource": [
+                "*"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:PutObject",
+                "s3:GetObject",
+                "s3:DeleteObject"
+            ],
+            "Resource": [
+                "*"
+            ]
+        }
+    ]
+}
+    response_S3_ReadWriteaccess_policy = iam_S3_ReadWriteaccess.create_policy(
+        PolicyName='S3_ReadWriteaccess',
+        PolicyDocument=json.dumps(S3_ReadWriteaccess)
+    )
+    print("S3 ReadWrite Policy: ",response_S3_ReadWriteaccess_policy)
+    result = response_S3_ReadWriteaccess_policy.get("Policy").get("Arn")
+    return result
+arn=create_iam_policy_S3_ReadWriteaccess()
+
+
+def create_iam_Devrole_s3():
+
+    # Create IAM client
+    iam_Devrole_s3 = boto3.client('iam')
+
+    # Create a role
+    Devrole_s3 = {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Effect": "Allow",
+                "Principal": {"Service": "s3.amazonaws.com"},
+                "Action": "sts:AssumeRole"
+            }
+        ]
+    }
+    response_Devrole_s3 = iam_Devrole_s3.create_role(
+        RoleName='Hema_iam_Devrole_s3',
+        AssumeRolePolicyDocument=json.dumps(Devrole_s3)
+    )
+
+    iam_Devrole_s3.attach_role_policy(
+        RoleName='Hema_iam_Devrole_s3', PolicyArn=arn)
+
+
+    print("DevRole S3: ",response_Devrole_s3)
+
+
+create_iam_Devrole_s3()
+
+*******************************************************************************************
+
+DevRole EC2
+
+import json
+import boto3
+import botocore
+
+def create_iam_policy_EC2_ReadWriteaccess():
+    # Create IAM client
+    iam_EC2_ReadWriteaccess = boto3.client('iam')
+
+    # Create a policy
+    EC2_ReadWriteaccess = {
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ec2:DescribeInstances",
+                "ec2:DescribeImages",
+                "ec2:DescribeInstanceTypes",
+                "ec2:DescribeKeyPairs",
+                "ec2:DescribeVpcs",
+                "ec2:DescribeSubnets",
+                "ec2:DescribeSecurityGroups",
+                "ec2:CreateSecurityGroup",
+                "ec2:AuthorizeSecurityGroupIngress",
+                "ec2:CreateKeyPair"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": "ec2:RunInstances",
+            "Resource": "*"
+        }
+    ]
+}
+
+
+    response_EC2_ReadWriteaccess_Policy = iam_EC2_ReadWriteaccess.create_policy(
+        PolicyName='EC2_ReadWriteaccess',
+        PolicyDocument=json.dumps(EC2_ReadWriteaccess)
+    )
+    print("EC2 ReadWrite Policy: ",response_EC2_ReadWriteaccess_Policy)
+    result = response_EC2_ReadWriteaccess_Policy.get("Policy").get("Arn")
+    return result
+arn=create_iam_policy_EC2_ReadWriteaccess()
+
+def create_iam_Devrole_EC2():
+
+    # Create IAM client
+    iam_Devrole_EC2 = boto3.client('iam')
+
+    # Create a role
+    Devrole_EC2 = {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Effect": "Allow",
+                "Principal": {"Service": "ec2.amazonaws.com"},
+                "Action": "sts:AssumeRole"
+            }
+        ]
+    }
+    response_Devrole_EC2 = iam_Devrole_EC2.create_role(
+        RoleName='Hema_iam_Devrole_EC2',
+        AssumeRolePolicyDocument=json.dumps(Devrole_EC2)
+    )
+    print("DevRole EC2: ",response_Devrole_EC2)
+    iam_Devrole_EC2.attach_role_policy(
+        RoleName='Hema_iam_Devrole_EC2', PolicyArn=arn)
+
+
+create_iam_Devrole_EC2()
+
+***************************************************************************************************
+
+DevRole RDS
+
+import json
+import boto3
+import botocore
+
+def create_iam_policy_RDS_ReadWriteaccess():
+    # Create IAM client
+    iam_RDS_ReadWriteaccess = boto3.client('iam')
+
+    # Create a policy
+    RDS_ReadWriteaccess = {
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "AllowCreate",
+            "Effect": "Allow",
+            "Action": [
+                "rds:ModifyDBInstance",
+                "rds:CreateDBSnapshot"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+
+    response_RDS_ReadWriteaccess_Policy = iam_RDS_ReadWriteaccess.create_policy(
+        PolicyName='RDS_ReadWriteaccess',
+        PolicyDocument=json.dumps(RDS_ReadWriteaccess)
+    )
+    print("RDS ReadWrite Policy: " ,response_RDS_ReadWriteaccess_Policy)
+    result = response_RDS_ReadWriteaccess_Policy.get("Policy").get("Arn")
+    return result
+arn=create_iam_policy_RDS_ReadWriteaccess()
+
+def create_iam_Devrole_RDS():
+
+    # Create IAM client
+    iam_Devrole_RDS = boto3.client('iam')
+
+    # Create a role
+    Devrole_RDS = {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Effect": "Allow",
+                "Principal": {"Service": "rds.amazonaws.com"},
+                "Action": "sts:AssumeRole"
+            }
+        ]
+    }
+    response_Devrole_RDS = iam_Devrole_RDS .create_role(
+        RoleName='Hema_iam_Devrole_RDS',
+        AssumeRolePolicyDocument=json.dumps(Devrole_RDS)
+    )
+    print("DevRole RDS:", response_Devrole_RDS)
+    iam_Devrole_RDS.attach_role_policy(
+        RoleName='Hema_iam_Devrole_RDS', PolicyArn=arn)
+
+
+
+create_iam_Devrole_RDS()
+
+*****************************************************************************************
+
+QA Role S3
+
+import json
+import boto3
+import botocore
+
+def create_iam_policy_S3_readonly_access():
+    # Create IAM client
+    iam_S3_readonly_access = boto3.client('iam')
+
+    # Create a policy
+    S3_readonly_access = {
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:Get*",
+                "s3:List*",
+                "s3-object-lambda:Get*",
+                "s3-object-lambda:List*"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+    response_S3_readonly_access_Policy = iam_S3_readonly_access.create_policy(
+        PolicyName='S3_readonly_access',
+        PolicyDocument=json.dumps(S3_readonly_access)
+    )
+    print("S3 Readonly Access: ",response_S3_readonly_access_Policy)
+    result = response_S3_readonly_access_Policy.get("Policy").get("Arn")
+    return result
+arn=create_iam_policy_S3_readonly_access()
+
+def create_iam_QArole_s3():
+
+    # Create IAM client
+    iam_QArole_s3 = boto3.client('iam')
+
+    # Create a role
+    QArole_s3 = {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Effect": "Allow",
+                "Principal": {"Service": "s3.amazonaws.com"},
+                "Action": "sts:AssumeRole"
+            }
+        ]
+    }
+    response_QArole_s3 = iam_QArole_s3.create_role(
+        RoleName='Hema_iam_QArole_s3',
+        AssumeRolePolicyDocument=json.dumps(QArole_s3)
+    )
+    print("QARole_S3 :",response_QArole_s3)
+    iam_QArole_s3.attach_role_policy(
+        RoleName='Hema_iam_QArole_s3', PolicyArn=arn)
+
+
+create_iam_QArole_s3()
+
+**********************************************************************************************************
+
+QA Role EC2
+
+import json
+import boto3
+import botocore
+
+def create_iam_policy_EC2_readonly_access():
+    # Create IAM client
+    iam_EC2_readonly_access = boto3.client('iam')
+
+    # Create a policy
+    EC2_readonly_access = {
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "ec2:Describe*",
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": "elasticloadbalancing:Describe*",
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "cloudwatch:ListMetrics",
+                "cloudwatch:GetMetricStatistics",
+                "cloudwatch:Describe*"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": "autoscaling:Describe*",
+            "Resource": "*"
+        }
+    ]
+}
+
+
+
+    response_EC2_readonly_access_Policy = iam_EC2_readonly_access.create_policy(
+        PolicyName='EC2_readonly_access',
+        PolicyDocument=json.dumps(EC2_readonly_access)
+    )
+    print("EC2 Readonly Policy: ",response_EC2_readonly_access_Policy)
+    result = response_EC2_readonly_access_Policy.get("Policy").get("Arn")
+    return result
+arn=create_iam_policy_EC2_readonly_access()
+
+def create_iam_QArole_EC2():
+
+    # Create IAM client
+    iam_QArole_EC2 = boto3.client('iam')
+
+    # Create a role
+    QArole_EC2 = {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Effect": "Allow",
+                "Principal": {"Service": "ec2.amazonaws.com"},
+                "Action": "sts:AssumeRole"
+            }
+        ]
+    }
+    response_QArole_EC2 = iam_QArole_EC2.create_role(
+        RoleName='Hema_iam_QArole_EC2',
+        AssumeRolePolicyDocument=json.dumps(QArole_EC2)
+    )
+    print("QARole EC2: ", response_QArole_EC2)
+    iam_QArole_EC2.attach_role_policy(
+        RoleName='Hema_iam_QArole_EC2', PolicyArn=arn)
+
+
+create_iam_QArole_EC2()
+
+****************************************************************************************************
+
+QA Role RDS
+
+import json
+import boto3
+import botocore
+
+def create_iam_policy_RDS_readonly_access():
+    # Create IAM client
+    iam_RDS_readonly_access = boto3.client('iam')
+
+    # Create a policy
+    RDS_readonly_access = {
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Action": [
+                "rds:Describe*",
+                "rds:ListTagsForResource",
+                "ec2:DescribeAccountAttributes",
+                "ec2:DescribeAvailabilityZones",
+                "ec2:DescribeInternetGateways",
+                "ec2:DescribeSecurityGroups",
+                "ec2:DescribeSubnets",
+                "ec2:DescribeVpcAttribute",
+                "ec2:DescribeVpcs"
+            ],
+            "Effect": "Allow",
+            "Resource": "*"
+        },
+        {
+            "Action": [
+                "cloudwatch:GetMetricStatistics",
+                "logs:DescribeLogStreams",
+                "logs:GetLogEvents"
+            ],
+            "Effect": "Allow",
+            "Resource": "*"
+        }
+    ]
+}
+
+
+    response_RDS_readonly_access_policy = iam_RDS_readonly_access.create_policy(
+        PolicyName='RDS_readonly_access',
+        PolicyDocument=json.dumps(RDS_readonly_access)
+    )
+    print("RDS Readonly Policy: ",response_RDS_readonly_access_policy)
+    result = response_RDS_readonly_access_policy.get("Policy").get("Arn")
+    return result
+arn=create_iam_policy_RDS_readonly_access()
+
+def create_iam_QArole_RDS():
+
+    # Create IAM client
+    iam_QArole_RDS = boto3.client('iam')
+
+    # Create a role
+    QArole_RDS = {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Effect": "Allow",
+                "Principal": {"Service": "rds.amazonaws.com"},
+                "Action": "sts:AssumeRole"
+            }
+        ]
+    }
+    response_QArole_RDS = iam_QArole_RDS.create_role(
+        RoleName='Hema_iam_QArole_RDS',
+        AssumeRolePolicyDocument=json.dumps(QArole_RDS)
+    )
+    print("QARole RDS: ", response_QArole_RDS)
+    iam_QArole_RDS.attach_role_policy(
+        RoleName='Hema_iam_QArole_RDS', PolicyArn=arn)
+
+
+create_iam_QArole_RDS()
+
+*****************************************************************************************************
+
+
+
+
+
+
+****************************************************************************************************
+
+
+
